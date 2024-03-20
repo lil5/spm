@@ -33,6 +33,8 @@ Commands:
 
     stop <jobs>     Stop jobs if currently running
 
+    kill <jobs>     Kill jobs if currently running
+
     list            Lists all running jobs
 
     logs <job>      Prints last 200 lines of job's logfile
@@ -128,6 +130,21 @@ func handleCliCommand(c *cli.Context, command string) {
 
 		if err := sock.Send(spm.Message{
 			Command:   "stop",
+			Arguments: c.Args()[1:],
+		}); err != nil {
+			log.Fatal(err)
+		}
+
+		<-sock.Message
+		log.Println("done")
+	case "kill":
+		sock := spm.NewSocket()
+		if err := sock.Dial(); err != nil {
+			log.Fatal(err)
+		}
+
+		if err := sock.Send(spm.Message{
+			Command:   "kill",
 			Arguments: c.Args()[1:],
 		}); err != nil {
 			log.Fatal(err)
@@ -234,6 +251,15 @@ func handleMessage(mes spm.Message, conn *spm.Socket, manager *spm.Manager, quit
 			}
 		} else {
 			manager.StopAll()
+		}
+		conn.Close()
+	case "kill":
+		if args := mes.Arguments; len(args) > 0 {
+			for _, arg := range args {
+				go manager.Kill(arg)
+			}
+		} else {
+			log.Println("Must specify a job to kill")
 		}
 		conn.Close()
 	case "logs":

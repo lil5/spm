@@ -105,6 +105,18 @@ func (m *Manager) Stop(job string) {
 	<-j.NotifyEnd
 }
 
+func (m *Manager) Kill(job string) {
+	m.mu.Lock()
+	j, exists := m.Jobs[job]
+	m.mu.Unlock()
+	if !exists {
+		return
+	}
+	pid, _ := syscall.Getpgid(j.Cmd.Process.Pid)
+	syscall.Kill(-pid, syscall.SIGKILL)
+	<-j.NotifyEnd
+}
+
 func (m *Manager) StopAll() {
 	var wg sync.WaitGroup
 	for job, _ := range m.Jobs {
