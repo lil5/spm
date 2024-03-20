@@ -29,6 +29,7 @@ Commands:
     start <jobs>    Starts jobs if present in Procfile
     stop            Stop all current jobs
     stop <jobs>     Stop jobs if currently running
+    kill <jobs>     Kill jobs if currently running
     list            Lists all running jobs
     logs <job>      Prints last 200 lines of job's logfile 
 
@@ -104,3 +105,9 @@ Suppose that we have the Procfile above inside a folder named _test_. After star
     ```
 
     ![](https://cloud.githubusercontent.com/assets/7649229/20076337/b64b1b42-a540-11e6-9a39-80a3235d696c.png)
+
+1. Kill a specific job using `spm kill apod` command:
+
+    ```
+    $ spm kill apod
+    ```
